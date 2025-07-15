@@ -28,6 +28,19 @@ FetchContent_Declare(ImGui-SFML
     SYSTEM)
 FetchContent_MakeAvailable(ImGui-SFML)
 
-add_executable(main src/main.cpp)
-target_compile_features(main PRIVATE cxx_std_17)
-target_link_libraries(main PRIVATE SFML::Graphics ImGui-SFML::ImGui-SFML)
+add_executable(${PROJECT_NAME} 
+    src/main.cpp
+    src/Events.cpp
+    src/Application.cpp
+    
+    src/SDFs/Operators/MinOperator.cpp
+    src/SDFs/Operators/TranslateOperator.cpp
+
+    src/SDFs/Primitives/Circle.cpp
+    src/SDFs/Primitives/Box.cpp
+    
+    
+    )
+
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics ImGui-SFML::ImGui-SFML)
