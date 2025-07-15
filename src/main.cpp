@@ -2,34 +2,39 @@
 #include <imgui-SFML.h>
 #include <imgui.h>
 
+#include "Configuration.h"
+#include "Events.h"
+
+#include "Application.h"
+
 int main()
 {
-    auto window = sf::RenderWindow(sf::VideoMode({1920u, 1080u}), "SDF Physics");
-    window.setFramerateLimit(144);
+    sf::RenderWindow window = sf::RenderWindow(sf::VideoMode(Configuration::WINDOW_SIZE), "SDF Physics");
+    window.setFramerateLimit(Configuration::MAX_FRAMERATE);
     if (!ImGui::SFML::Init(window))
         return -1;
+
+    Application application = Application{ window };
 
     sf::Clock clock;
     while (window.isOpen())
     {
-        while (const std::optional event = window.pollEvent())
-        {
-            ImGui::SFML::ProcessEvent(window, *event);
+        sf::Time deltaTime = clock.restart();
 
-            if (event->is<sf::Event::Closed>())
-            {
-                window.close();
-            }
-        }
+        Events::ProcessEvents(window);
 
-        ImGui::SFML::Update(window, clock.restart());
+        application.Update(deltaTime);
+
+        ImGui::SFML::Update(window, deltaTime);
 
         ImGui::Begin("Hello, world!");
-        ImGui::Button("Look at this pretty button");
+        application.DrawImGui(deltaTime);
         ImGui::End();
 
         window.clear();
         ImGui::SFML::Render(window);
+
+        application.Draw();
         window.display();
     }
 
