@@ -32,6 +32,8 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
     src/Events.cpp
     src/Application.cpp
+
+    src/Math.h
     
     src/SDFs/Operators/MinOperator.cpp
     src/SDFs/Operators/TranslateOperator.cpp
