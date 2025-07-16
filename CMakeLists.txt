@@ -30,16 +30,25 @@ FetchContent_MakeAvailable(ImGui-SFML)
 
 add_executable(${PROJECT_NAME} 
     src/main.cpp
+    src/Configuration.h
+    src/Events.h
     src/Events.cpp
+    src/Application.h
     src/Application.cpp
 
     src/Math.h
-    
-    src/SDFs/Operators/MinOperator.cpp
-    src/SDFs/Operators/TranslateOperator.cpp
+    src/Math.cpp
 
-    src/SDFs/Primitives/Circle.cpp
-    src/SDFs/Primitives/Box.cpp
+    src/Canvas.h
+    src/Canvas.cpp
+    
+    src/SDFs/SDF.h
+    src/SDFs/AllSDFs.h
+
+    src/SDFs/Operators/MinOperator.h
+
+    src/SDFs/Primitives/Circle.h
+    src/SDFs/Primitives/Box.h
     
     
     )
