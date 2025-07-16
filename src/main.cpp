@@ -27,14 +27,14 @@ int main()
 
         ImGui::SFML::Update(window, deltaTime);
 
-        ImGui::Begin("Hello, world!");
+        ImGui::Begin("Debug");
         application.DrawImGui(deltaTime);
         ImGui::End();
 
         window.clear();
-        ImGui::SFML::Render(window);
 
         application.Draw();
+        ImGui::SFML::Render(window);
         window.display();
     }
 
