@@ -1,5 +1,5 @@
 #pragma once
-#include "SDF.h"
+#include "../SDF.h"
 
 template<typename TFloatType>
 class TranslateOperator : public SDF<TFloatType>

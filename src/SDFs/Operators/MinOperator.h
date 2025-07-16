@@ -1,5 +1,5 @@
 #pragma once
-#include "SDF.h"
+#include "../SDF.h"
 
 template<typename TFloatType>
 class MinOperator : public SDF<TFloatType>
