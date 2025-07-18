@@ -45,7 +45,9 @@ add_executable(${PROJECT_NAME}
     src/SDFs/SDF.h
     src/SDFs/AllSDFs.h
 
-    src/SDFs/Operators/MinOperator.h
+    src/SDFs/Operators/UnionOperator.h
+    src/SDFs/Operators/SmoothUnionOperator.h
+    src/SDFs/Operators/IntersectionOperator.h
 
     src/SDFs/Primitives/Circle.h
     src/SDFs/Primitives/Box.h

@@ -1,16 +1,16 @@
 #include "Canvas.h"
 
 Canvas::Canvas(uint32_t width, uint32_t height) :
-    m_vertexArray(sf::PrimitiveType::Points, width * height),
+    m_vertexArray(sf::PrimitiveType::Points, width* height),
     m_size(width, height),
     m_changedSinceLastDraw(true)
 {
     uint32_t index = 0;
-    for (uint32_t x = 0u; x < width; ++x)
+    for (uint32_t x = 0u; x < m_size.x; ++x)
     {
-        for (uint32_t y = 0u; y < height; ++y)
+        for (uint32_t y = 0u; y < m_size.y; ++y)
         {
-            m_vertexArray[index++].position = sf::Vector2f{ static_cast<float>(x), static_cast<float>(y) };
+            m_vertexArray[index++].position = sf::Vector2f{ static_cast<float>(x) , static_cast<float>(y) };
         }
     }
 }
@@ -38,4 +38,9 @@ void Canvas::DrawOnTexture(sf::RenderTexture& texture)
     texture.display();
 
     m_changedSinceLastDraw = false;
+}
+
+const sf::Vector2u& Canvas::GetSize() const
+{
+    return m_size;
 }

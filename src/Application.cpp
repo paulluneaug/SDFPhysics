@@ -8,8 +8,8 @@
 
 Application::Application(sf::RenderWindow &window) :
     m_window(window),
-    m_canvas(window.getSize()),
-    m_renderTexture(window.getSize()),
+    m_canvas(window.getSize() / Configuration::PIXEL_SIZE),
+    m_renderTexture(window.getSize() / Configuration::PIXEL_SIZE),
 	m_sceneSDF(std::move(CreateSceneSDF()))
 {
     m_renderTexture.setSmooth(true);
@@ -34,9 +34,11 @@ void Application::Draw()
 
     sf::Sprite sprite(m_renderTexture.getTexture());
     const sf::FloatRect bounds = sprite.getGlobalBounds();
-    const sf::Vector2f origin = bounds.size * 0.5f;
+	const sf::Vector2f origin = bounds.size * 0.5f;
+	const sf::Vector2f position = { origin.x * Configuration::PIXEL_SIZE, origin.y * Configuration::PIXEL_SIZE };
     sprite.setOrigin(origin);
-    sprite.setPosition(origin);
+    sprite.setPosition(position);
+	sprite.setScale({ Configuration::PIXEL_SIZE, Configuration::PIXEL_SIZE });
 
     m_window.draw(sprite);
 }
@@ -68,7 +70,7 @@ void Application::DrawImGui(const sf::Time &deltaTime)
 
 void Application::ComputeSDF()
 {
-	const sf::Vector2u size = m_window.getSize();
+	const sf::Vector2u size = m_canvas.GetSize();
 	for (uint32_t x = 0u; x < size.x; ++x) 
 	{
 		for (uint32_t y = 0u; y < size.y; ++y)
@@ -84,6 +86,11 @@ SDF_Ptr<FloatType> Application::CreateSceneSDF()
 	SDF_Ptr<FloatType> circle0 = std::make_unique<Circle<FloatType>>(sf::Vector2<FloatType>{200.0f, 100.0f}, 200.0f);
 	SDF_Ptr<FloatType> circle1 = std::make_unique<Circle<FloatType>>(sf::Vector2<FloatType>{500.0f, 700.0f}, 100.0f);
 
-	SDF_Ptr<FloatType> operation = std::make_unique<MinOperator<FloatType>>(std::move(circle0), std::move(circle1));
-	return operation;
+	SDF_Ptr<FloatType> circleMin = std::make_unique<UnionOperator<FloatType>>(std::move(circle0), std::move(circle1));
+
+	SDF_Ptr<FloatType> box = std::make_unique<Box<FloatType>>(sf::Vector2<FloatType>{800.0f, 900.0f}, sf::Vector2<FloatType>{ 200.0f, 100.0f });
+
+
+	SDF_Ptr<FloatType> scene = std::make_unique<SmoothUnionOperator<FloatType>>(std::move(circleMin), std::move(box), 0.5f);
+	return scene;
 }

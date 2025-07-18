@@ -15,5 +15,7 @@ public:
 
     void SetPointColor(uint32_t x, uint32_t y, sf::Color color);
     void DrawOnTexture(sf::RenderTexture& texture);
+
+    const sf::Vector2u& GetSize() const;
 };
 

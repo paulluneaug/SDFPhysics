@@ -6,7 +6,7 @@
 using namespace Alias;
 
 template<typename TFloatType>
-class MinOperator : public SDF<TFloatType>
+class UnionOperator : public SDF<TFloatType>
 {
     typedef SDF<TFloatType> Base;
 private:
@@ -14,7 +14,7 @@ private:
     SDF_Ptr<TFloatType> m_sdf1;
 
 public:
-    MinOperator(SDF_Ptr<TFloatType> sdf0, SDF_Ptr<TFloatType> sdf1) :
+    UnionOperator(SDF_Ptr<TFloatType> sdf0, SDF_Ptr<TFloatType> sdf1) :
         m_sdf0(std::move(sdf0)),
         m_sdf1(std::move(sdf1))
     {
@@ -28,7 +28,7 @@ protected:
 
     virtual bool DisplayTreeNode() const override
     {
-        return ImGui::TreeNode("Min");
+        return ImGui::TreeNode("Union");
     }
 
     virtual void DrawDebug_Impl(int& elementID) override

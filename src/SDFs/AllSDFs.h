@@ -5,4 +5,6 @@
 #include "Primitives/Circle.h"
 
 // Operators
-#include "Operators/MinOperator.h"
+#include "Operators/UnionOperator.h"
+#include "Operators/SmoothUnionOperator.h"
+#include "Operators/IntersectionOperator.h"
