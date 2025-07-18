@@ -39,6 +39,9 @@ add_executable(${PROJECT_NAME}
     src/Math.h
     src/Math.cpp
 
+    src/Utils/Profiler.h
+    src/Utils/Profiler.cpp
+
     src/Canvas.h
     src/Canvas.cpp
     
