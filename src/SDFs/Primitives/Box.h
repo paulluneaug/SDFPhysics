@@ -41,6 +41,7 @@ protected:
         if (ImGui::DragFloat2("Size", size))
         {
             m_size = { size[0], size[1] };
+            OnSDFChanged();
         }
     }
 };

@@ -13,8 +13,8 @@ Application::Application(sf::RenderWindow &window, Profiler& profiler) :
 	m_sceneSDF(std::move(CreateSceneSDF())),
 	m_profiler(profiler)
 {
-    m_renderTexture.setSmooth(true);
-	ComputeSDF();
+    m_renderTexture.setSmooth(false);
+	ComputeSceneSDF();
 }
 
 void Application::Update(const sf::Time &deltaTime)
@@ -26,8 +26,12 @@ void Application::Update(const sf::Time &deltaTime)
 	}
 	m_deltaTimes[m_currentDTIndex] = deltaTimeSeconds;
 
-	m_profiler.StartEvent("SDF Computation");
-	ComputeSDF();
+	m_profiler.StartEvent("Scene SDF Computation");
+	if (m_sceneSDF->RequireReevaluation()) 
+	{
+		ComputeSceneSDF();
+		m_sceneSDF->OnSDFReevaluated();
+	}
 	m_profiler.EndEvent();
 }
 
@@ -71,7 +75,7 @@ void Application::DrawImGui(const sf::Time &deltaTime)
 	}
 }
 
-void Application::ComputeSDF()
+void Application::ComputeSceneSDF()
 {
 	const sf::Vector2u size = m_canvas.GetSize();
 	for (uint32_t x = 0u; x < size.x; ++x) 

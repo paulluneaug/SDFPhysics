@@ -24,6 +24,20 @@ public:
     {
     }
 
+    virtual bool RequireReevaluation() const override
+    {
+        return Base::RequireReevaluation()
+            || m_sdf0->RequireReevaluation()
+            || m_sdf1->RequireReevaluation();
+    }
+
+    virtual void OnSDFReevaluated() override
+    {
+        Base::OnSDFReevaluated();
+        m_sdf0->OnSDFReevaluated();
+        m_sdf1->OnSDFReevaluated();
+    }
+
 protected:
     TFloatType Evaluate_Impl(const sf::Vector2<TFloatType>& position) const override
     {
@@ -38,7 +52,10 @@ protected:
     virtual void DrawDebug_Impl(int& elementID) override
     {
         Base::DrawDebug_Impl(elementID);
-        ImGui::DragFloat("Smooth Factor", &m_smoothFactor);
+        if (ImGui::DragFloat("Smooth Factor", &m_smoothFactor)) 
+        {
+            OnSDFChanged();
+        }
         m_sdf0->DrawDebug(elementID);
         m_sdf1->DrawDebug(elementID);
     }

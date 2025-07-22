@@ -30,6 +30,9 @@ protected:
     virtual void DrawDebug_Impl(int& elementID) override
     {
         Base::DrawDebug_Impl(elementID);
-        ImGui::DragFloat("Radius", &m_radius, 1.0f, 0.0f);
+        if (ImGui::DragFloat("Radius", &m_radius, 1.0f, 0.0f)) 
+        {
+            OnSDFChanged();
+        }
     }
 };

@@ -38,6 +38,6 @@ public:
     void DrawImGui(const sf::Time& deltaTime);
 
 private:
-    void ComputeSDF();
+    void ComputeSceneSDF();
     SDF_Ptr<Configuration::FloatType> CreateSceneSDF();
 };

@@ -20,6 +20,20 @@ public:
     {
     }
 
+    virtual bool RequireReevaluation() const override
+    {
+        return Base::RequireReevaluation()
+            || m_sdf0->RequireReevaluation()
+            || m_sdf1->RequireReevaluation();
+    }
+
+    virtual void OnSDFReevaluated() override
+    {
+        Base::OnSDFReevaluated();
+        m_sdf0->OnSDFReevaluated();
+        m_sdf1->OnSDFReevaluated();
+    }
+
 protected:
     TFloatType Evaluate_Impl(const sf::Vector2<TFloatType>& position) const override
     {

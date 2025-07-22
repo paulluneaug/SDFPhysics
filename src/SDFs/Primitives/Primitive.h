@@ -30,6 +30,7 @@ protected:
         if (ImGui::DragFloat2("Position", position))
         {
             m_position = { position[0], position[1] };
+            OnSDFChanged();
         }
     }
 };
