@@ -6,12 +6,13 @@
 #include "SDFs/AllSDFs.h"
 #include "SDFs/Primitives/Circle.h"
 
-Application::Application(sf::RenderWindow &window, Profiler& profiler) :
-    m_window(window),
-    m_canvas(window.getSize() / Configuration::PIXEL_SIZE),
-    m_renderTexture(window.getSize() / Configuration::PIXEL_SIZE),
+Application::Application(sf::RenderWindow& window, Profiler& profiler) :
+	m_window(window),
+	m_canvas(window.getSize() / Configuration::PIXEL_SIZE),
+	m_renderTexture(window.getSize() / Configuration::PIXEL_SIZE),
 	m_sceneSDF(std::move(CreateSceneSDF())),
-	m_profiler(profiler)
+	m_profiler(profiler),
+	m_threadPool(16u)
 {
     m_renderTexture.setSmooth(false);
 	ComputeSceneSDF();
@@ -78,14 +79,33 @@ void Application::DrawImGui(const sf::Time &deltaTime)
 void Application::ComputeSceneSDF()
 {
 	const sf::Vector2u size = m_canvas.GetSize();
-	for (uint32_t x = 0u; x < size.x; ++x) 
+	/*for (uint32_t x = 0u; x < size.x; ++x) 
 	{
 		for (uint32_t y = 0u; y < size.y; ++y)
 		{
 			FloatType distance = m_sceneSDF->Evaluate({ static_cast<FloatType>(x), static_cast<FloatType>(y) });
 			m_canvas.SetPointColor(x, y, distance < 0.0f ? sf::Color::White : sf::Color::Black);
 		}
+	}*/
+	
+	const uint32_t threadCount = m_threadPool.ThreadCount();
+	const uint32_t sliceHeight = size.y / threadCount;
+
+	for (uint32_t k{ 0 }; k < threadCount; ++k) 
+	{
+		m_threadPool.AddTask([=] 
+		{
+			for (uint32_t x = 0u; x < size.x; ++x) 
+			{
+				for (uint32_t y{ k * sliceHeight }; y < (k + 1) * sliceHeight; ++y) 
+				{
+					FloatType distance = m_sceneSDF->Evaluate({ static_cast<FloatType>(x), static_cast<FloatType>(y) });
+					m_canvas.SetPointColor(x, y, distance < 0.0f ? sf::Color::White : sf::Color::Black);
+				}
+			}
+		});
 	}
+	m_threadPool.WaitForCompletion();
 }
 
 SDF_Ptr<FloatType> Application::CreateSceneSDF()

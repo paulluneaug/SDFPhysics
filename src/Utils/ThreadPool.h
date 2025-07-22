@@ -12,14 +12,14 @@ class TaskQueue
 private:
     std::queue<std::function<void()>> m_tasks;
     std::mutex                        m_mutex;
-    std::atomic<uint32_t>             m_remaining_tasks = 0;
+    std::atomic<uint32_t>             m_remainingTasks = 0;
 
 public:
     template<typename TCallback>
     void AddTask(TCallback&& callback)
     {
-        addTaskNoIncrement(std::forward<TCallback>(callback));
-        m_remaining_tasks++;
+        AddTaskNoIncrement(std::forward<TCallback>(callback));
+        m_remainingTasks++;
     }
 
     template<typename TCallback>
@@ -48,7 +48,7 @@ public:
 
     void WaitForCompletion() const
     {
-        while (m_remaining_tasks > 0) 
+        while (m_remainingTasks > 0) 
         {
             Wait();
         }
@@ -56,12 +56,12 @@ public:
 
     void WorkDone()
     {
-        m_remaining_tasks--;
+        m_remainingTasks--;
     }
 
     uint32_t GetRemainingTask() const 
     {
-        return m_remaining_tasks;
+        return m_remainingTasks;
     }
 };
 
@@ -112,17 +112,17 @@ public:
 class ThreadPool
 {
 private :
-    uint32_t m_thread_count = 0;
+    uint32_t m_threadCount = 0;
     TaskQueue m_queue;
     std::vector<Worker> m_workers;
 
 public:
     explicit
-        ThreadPool(uint32_t thread_count)
-        : m_thread_count{ thread_count }
+        ThreadPool(uint32_t threadCount)
+        : m_threadCount{ threadCount }
     {
-        m_workers.reserve(thread_count);
-        for (uint32_t i{ thread_count }; i > 0u; --i) 
+        m_workers.reserve(threadCount);
+        for (uint32_t i{ threadCount }; i > 0u; --i) 
         {
             m_workers.emplace_back(m_queue, static_cast<uint32_t>(m_workers.size()));
         }
@@ -138,13 +138,13 @@ public:
     template<typename TCallback>
     void AddTask(TCallback&& callback)
     {
-        m_queue.addTask(std::forward<TCallback>(callback));
+        m_queue.AddTask(std::forward<TCallback>(callback));
     }
 
     template<typename TCallback>
     void AddTaskNoIncrement(TCallback&& callback)
     {
-        m_queue.addTaskNoIncrement(std::forward<TCallback>(callback));
+        m_queue.AddTaskNoIncrement(std::forward<TCallback>(callback));
     }
 
     void WaitForCompletion() const
@@ -157,20 +157,24 @@ public:
         return m_queue.GetRemainingTask() == 0;
     }
 
+    uint32_t ThreadCount() const {
+        return m_threadCount;
+    }
+
     template<typename TCallback>
     void Dispatch(uint32_t element_count, TCallback&& callback)
     {
-        const uint32_t batch_size = element_count / m_thread_count;
-        for (uint32_t i{ 0 }; i < m_thread_count; ++i) 
+        const uint32_t batch_size = element_count / m_threadCount;
+        for (uint32_t i{ 0 }; i < m_threadCount; ++i) 
         {
             const uint32_t start = batch_size * i;
             const uint32_t end = start + batch_size;
             AddTask([start, end, &callback]() { callback(start, end); });
         }
 
-        if (batch_size * m_thread_count < element_count) 
+        if (batch_size * m_threadCount < element_count) 
         {
-            const uint32_t start = batch_size * m_thread_count;
+            const uint32_t start = batch_size * m_threadCount;
             callback(start, element_count);
         }
 

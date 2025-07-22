@@ -9,6 +9,7 @@
 #include "Alias.h"
 
 #include "Utils/Profiler.h"
+#include "Utils/ThreadPool.h"
 
 using namespace Alias;
 using namespace Configuration;
@@ -22,6 +23,8 @@ private:
     sf::RenderTexture m_renderTexture;
 
     SDF_Ptr<Configuration::FloatType> m_sceneSDF;
+
+    ThreadPool m_threadPool;
 
 
     std::array<double, 60> m_deltaTimes;
