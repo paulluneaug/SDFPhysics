@@ -15,8 +15,8 @@ int main()
     if (!ImGui::SFML::Init(window))
         return -1;
 
-    Application application = Application{ window };
     Profiler profiler = Profiler{};
+    Application application = Application{ window, profiler };
 
     sf::Clock clock;
     while (window.isOpen())

@@ -8,6 +8,8 @@
 
 #include "Alias.h"
 
+#include "Utils/Profiler.h"
+
 using namespace Alias;
 using namespace Configuration;
 
@@ -26,8 +28,10 @@ private:
     int m_currentDTIndex = 0;
     float m_captureAverageDeltaTime;
 
+    Profiler& m_profiler;
+
 public:
-    Application(sf::RenderWindow& window);
+    Application(sf::RenderWindow& window, Profiler& profiler);
 
     void Update(const sf::Time& deltaTime);
     void Draw();

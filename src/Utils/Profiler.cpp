@@ -1,38 +1,50 @@
 #include "Profiler.h"
 
-Profiler::Profiler()
+Profiler::Profiler() :
+	m_depth(0),
+	m_currentEvent(nullptr)
 {
 	Reset();
 }
 
 void Profiler::StartEvent(const char* eventName)
 {
-	if (m_eventStarted)
-	{
-		return;
-	}
-	m_events.emplace_back(eventName);
-	m_eventStarted = true;
-	m_eventStartTime = m_clock.getElapsedTime().asMilliseconds();
+	m_currentEvent = &m_events.emplace_back(eventName, m_clock.getElapsedTime().asMilliseconds(), m_currentEvent, m_depth);
+	m_depth++;
 }
 
 void Profiler::EndEvent()
 {
-	if (!m_eventStarted)
+	if (m_depth <= 0)
 	{
 		return;
 	}
-	m_eventStarted = false;
-	Event& endedEvent = m_events[m_events.size() - 1];
-	endedEvent.ElapsedTime = m_clock.getElapsedTime().asMilliseconds() - m_eventStartTime;
+	m_currentEvent->EndEvent(m_clock.getElapsedTime().asMilliseconds());
+
+	m_currentEvent = m_currentEvent->ParentEvent;
+	m_depth--;
 }
 
 void Profiler::DrawImGui()
 {
 	if (ImGui::CollapsingHeader("Profiler")) 
 	{
+		int currentDepth = 0;
 		for (const Event& event : m_events)
 		{
+			int eventDepth = event.Depth;
+			while (currentDepth > eventDepth)
+			{
+				currentDepth--;
+				ImGui::Unindent();
+			}
+
+			while (currentDepth < eventDepth)
+			{
+				currentDepth++;
+				ImGui::Indent();
+			}
+
 			event.DrawImGui();
 		}
 	}
@@ -40,8 +52,8 @@ void Profiler::DrawImGui()
 
 void Profiler::Reset()
 {
-	m_eventStarted = false;
 	m_events.clear();
 	m_clock.restart();
-	m_eventStartTime = 0.0f;
+	m_depth = 0;
+	m_currentEvent = nullptr;
 }

@@ -9,22 +9,43 @@ class Profiler
 	class Event 
 	{
 	public:
-		int ElapsedTime;
+		Event* ParentEvent;
+		int Depth;
 
 	private:
 		const char* m_eventName;
 
+		int m_startTime;
+		int m_elapsedTime;
+
+		bool m_ended;
+
+
 	public:
-		Event(const char* name) :
+		Event(const char* name, int startTime, Event* parentEvent, int depth) :
+			ParentEvent(parentEvent),
+			Depth(depth),
 			m_eventName(name),
-			ElapsedTime(0)
+			m_startTime(startTime),
+			m_elapsedTime(0),
+			m_ended(false)
 		{
 
 		}
 
+		void EndEvent(int endTime) 
+		{
+			m_ended = true;
+			m_elapsedTime = endTime - m_startTime;
+		}
+
 		void DrawImGui() const
 		{
-			ImGui::Text("%s : %i ms", m_eventName, ElapsedTime);
+			if (!m_ended) 
+			{
+				return;
+			}
+			ImGui::Text("%s : %i ms", m_eventName, m_elapsedTime);
 		}
 	};
 
@@ -33,8 +54,8 @@ private:
 
 	std::vector<Event> m_events;
 
-	bool m_eventStarted;
-	int m_eventStartTime;
+	int m_depth;
+	Event* m_currentEvent;
 
 public:
 	Profiler();

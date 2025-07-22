@@ -6,11 +6,12 @@
 #include "SDFs/AllSDFs.h"
 #include "SDFs/Primitives/Circle.h"
 
-Application::Application(sf::RenderWindow &window) :
+Application::Application(sf::RenderWindow &window, Profiler& profiler) :
     m_window(window),
     m_canvas(window.getSize() / Configuration::PIXEL_SIZE),
     m_renderTexture(window.getSize() / Configuration::PIXEL_SIZE),
-	m_sceneSDF(std::move(CreateSceneSDF()))
+	m_sceneSDF(std::move(CreateSceneSDF())),
+	m_profiler(profiler)
 {
     m_renderTexture.setSmooth(true);
 	ComputeSDF();
@@ -25,7 +26,9 @@ void Application::Update(const sf::Time &deltaTime)
 	}
 	m_deltaTimes[m_currentDTIndex] = deltaTimeSeconds;
 
+	m_profiler.StartEvent("SDF Computation");
 	ComputeSDF();
+	m_profiler.EndEvent();
 }
 
 void Application::Draw()
