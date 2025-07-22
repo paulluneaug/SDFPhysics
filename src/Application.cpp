@@ -111,7 +111,7 @@ void Application::ComputeSceneSDF()
 SDF_Ptr<FloatType> Application::CreateSceneSDF()
 {
 	SDF_Ptr<FloatType> circle0 = std::make_unique<Circle<FloatType>>(sf::Vector2<FloatType>{200.0f, 100.0f}, 200.0f);
-	SDF_Ptr<FloatType> circle1 = std::make_unique<Circle<FloatType>>(sf::Vector2<FloatType>{500.0f, 700.0f}, 100.0f);
+	SDF_Ptr<FloatType> circle1 = std::make_unique<CoolS<FloatType>>(sf::Vector2<FloatType>{500.0f, 700.0f});
 
 	SDF_Ptr<FloatType> circleMin = std::make_unique<UnionOperator<FloatType>>(std::move(circle0), std::move(circle1));
 

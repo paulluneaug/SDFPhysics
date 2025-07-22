@@ -55,6 +55,7 @@ add_executable(${PROJECT_NAME}
 
     src/SDFs/Primitives/Circle.h
     src/SDFs/Primitives/Box.h
+    src/SDFs/Primitives/CoolS.h
     
     
     )

@@ -40,4 +40,10 @@ public:
 		TFloat h = std::max(k - std::abs(a - b), zero) / k;
 		return std::min(a, b) - h * h * k * (one / four);
 	}
+
+	template<typename TVal>
+	static constexpr float Sign(const TVal value)
+	{
+		return value >= static_cast<TVal>(0) ? 1 : -1;
+	}
 };

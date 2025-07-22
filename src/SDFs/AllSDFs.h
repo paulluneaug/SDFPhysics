@@ -3,6 +3,7 @@
 // Primitives
 #include "Primitives/Box.h"
 #include "Primitives/Circle.h"
+#include "Primitives/CoolS.h"
 
 // Operators
 #include "Operators/UnionOperator.h"
