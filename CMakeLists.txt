@@ -57,7 +57,8 @@ add_executable(${PROJECT_NAME}
     src/SDFs/Primitives/Box.h
     src/SDFs/Primitives/CoolS.h
     
-    
+    src/Physics/Verlet/VerletSolver.h
+    src/Physics/Verlet/VerletObject.h
     )
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
