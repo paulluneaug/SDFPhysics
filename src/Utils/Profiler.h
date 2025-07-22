@@ -9,7 +9,7 @@ class Profiler
 	class Event 
 	{
 	public:
-		float ElapsedTime;
+		int ElapsedTime;
 
 	private:
 		const char* m_eventName;
@@ -17,14 +17,14 @@ class Profiler
 	public:
 		Event(const char* name) :
 			m_eventName(name),
-			ElapsedTime(0.0f)
+			ElapsedTime(0)
 		{
 
 		}
 
 		void DrawImGui() const
 		{
-			ImGui::Text("%s : %f s", m_eventName, ElapsedTime);
+			ImGui::Text("%s : %i ms", m_eventName, ElapsedTime);
 		}
 	};
 
@@ -32,6 +32,9 @@ private:
 	sf::Clock m_clock;
 
 	std::vector<Event> m_events;
+
+	bool m_eventStarted;
+	int m_eventStartTime;
 
 public:
 	Profiler();

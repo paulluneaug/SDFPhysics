@@ -6,6 +6,7 @@
 #include "Events.h"
 
 #include "Application.h"
+#include "Utils/Profiler.h"
 
 int main()
 {
@@ -15,26 +16,40 @@ int main()
         return -1;
 
     Application application = Application{ window };
+    Profiler profiler = Profiler{};
 
     sf::Clock clock;
     while (window.isOpen())
     {
+        profiler.Reset();
+
         sf::Time deltaTime = clock.restart();
 
+        profiler.StartEvent("Event Processing");
         Events::ProcessEvents(window);
+        profiler.EndEvent();
 
+        profiler.StartEvent("Application Update");
         application.Update(deltaTime);
+        profiler.EndEvent();
+
+        profiler.StartEvent("Window Clear");
+        window.clear();
+        profiler.EndEvent();
+
+        profiler.StartEvent("Application Draw");
+        application.Draw();
+        profiler.EndEvent();
 
         ImGui::SFML::Update(window, deltaTime);
 
         ImGui::Begin("Debug");
         application.DrawImGui(deltaTime);
+
+        profiler.DrawImGui();
         ImGui::End();
-
-        window.clear();
-
-        application.Draw();
         ImGui::SFML::Render(window);
+
         window.display();
     }
 

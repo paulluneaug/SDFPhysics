@@ -9,6 +9,6 @@ namespace Configuration
 
 	const sf::Vector2u WINDOW_SIZE = sf::Vector2u(1920u, 1080u);
 
-	const uint32_t PIXEL_SIZE = 3u;
+	const uint32_t PIXEL_SIZE = 1u;
 };
 
