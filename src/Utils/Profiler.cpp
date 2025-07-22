@@ -27,7 +27,7 @@ void Profiler::EndEvent()
 
 void Profiler::DrawImGui()
 {
-	if (ImGui::CollapsingHeader("Profiler")) 
+	if (ImGui::CollapsingHeader("Profiler", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		int currentDepth = 0;
 		for (const Event& event : m_events)

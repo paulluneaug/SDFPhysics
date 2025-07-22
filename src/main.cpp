@@ -41,6 +41,7 @@ int main()
         application.Draw();
         profiler.EndEvent();
 
+        // ImGui
         ImGui::SFML::Update(window, deltaTime);
 
         ImGui::Begin("Debug");
