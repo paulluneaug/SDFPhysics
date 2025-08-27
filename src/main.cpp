@@ -19,11 +19,16 @@ int main()
     Application application = Application{ window, profiler };
 
     sf::Clock clock;
+
+    const float fixedDelaTime = 1.0f / static_cast<float>(Configuration::FIXED_FRAMERATE);
+    float accumulatedFixedTime = 0.0f;
+
     while (window.isOpen())
     {
         profiler.Reset();
 
         sf::Time deltaTime = clock.restart();
+        accumulatedFixedTime += deltaTime.asSeconds();
 
         profiler.StartEvent("Event Processing");
         Events::ProcessEvents(window);
@@ -31,6 +36,14 @@ int main()
 
         profiler.StartEvent("Application Update");
         application.Update(deltaTime);
+        profiler.EndEvent();
+
+        profiler.StartEvent("Application Fixed Update");
+        while (accumulatedFixedTime > fixedDelaTime) 
+        {
+            accumulatedFixedTime -= fixedDelaTime;
+            application.FixedUpdate(fixedDelaTime);
+        }
         profiler.EndEvent();
 
         profiler.StartEvent("Window Clear");
