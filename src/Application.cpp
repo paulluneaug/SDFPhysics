@@ -4,18 +4,30 @@
 #include <numeric>
 
 #include "SDFs/AllSDFs.h"
-#include "SDFs/Primitives/Circle.h"
+#include "SDFs/SDFUtils.h"
+
+#include "GFs/AllGFs.h"
+
+#include "Utils/ImGuiUtils.h"
 
 Application::Application(sf::RenderWindow& window, Profiler& profiler) :
 	m_window(window),
 	m_canvas(window.getSize() / Configuration::PIXEL_SIZE),
 	m_renderTexture(window.getSize() / Configuration::PIXEL_SIZE),
 	m_sceneSDF(std::move(CreateSceneSDF())),
+	m_sceneGF(std::move(CreateSceneGF())),
 	m_profiler(profiler),
-	m_threadPool(16u)
+	m_threadPool(16u),
+	m_physicsSolver(m_sceneSDF.get()),
+	m_directionSinFactor(200.0f)
 {
+	SDFUtils<FloatType>::EvalOffset = static_cast<FloatType>(0.01f);
+
     m_renderTexture.setSmooth(false);
 	ComputeSceneSDF();
+	ComputeSceneGF();
+
+	
 }
 
 void Application::Update(const sf::Time &deltaTime)
@@ -26,14 +38,20 @@ void Application::Update(const sf::Time &deltaTime)
 		m_currentDTIndex = 0;
 	}
 	m_deltaTimes[m_currentDTIndex] = deltaTimeSeconds;
-
+	
 	m_profiler.StartEvent("Scene SDF Computation");
-	if (m_sceneSDF->RequireReevaluation()) 
-	{
-		ComputeSceneSDF();
-		m_sceneSDF->OnSDFReevaluated();
-	}
+	ComputeSceneSDF();
 	m_profiler.EndEvent();
+	/*
+	m_profiler.StartEvent("Scene GF Computation");
+	ComputeSceneGF();
+	m_profiler.EndEvent();
+	*/
+}
+
+void Application::FixedUpdate(float fixedDeltaTime)
+{
+	m_physicsSolver.Update(fixedDeltaTime);
 }
 
 void Application::Draw()
@@ -71,25 +89,35 @@ void Application::DrawImGui(const sf::Time &deltaTime)
 	// Scene SDF
 	if (ImGui::CollapsingHeader("Scene settings", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen)) 
 	{
+		bool changed = ImGui::DragFloat("Sin Factor", &m_directionSinFactor);
+		changed |= ImGui::Checkbox("Red", &m_redChannel);
+		changed |= ImGui::Checkbox("Green", &m_greenChannel);
+		changed |= ImGui::Checkbox("Blue", &m_blueChannel);
+
+		changed |= ImGuiExtension::GenericDragFloat("Gradient evaluation offset", &SDFUtils<FloatType>::EvalOffset, 0.1f, 0.0f, 1.0f);
+
+		if (changed)
+		{
+			ComputeSceneSDF(true);
+		}
+
 		int id = 0;
 		m_sceneSDF->DrawDebug(id);
 	}
 }
 
-void Application::ComputeSceneSDF()
+void Application::ComputeSceneSDF(bool forceReevaluation)
 {
-	const sf::Vector2u size = m_canvas.GetSize();
-	/*for (uint32_t x = 0u; x < size.x; ++x) 
+	if ((!m_sceneSDF->RequireReevaluation() && !forceReevaluation) || !m_threadPool.IsDone())
 	{
-		for (uint32_t y = 0u; y < size.y; ++y)
-		{
-			FloatType distance = m_sceneSDF->Evaluate({ static_cast<FloatType>(x), static_cast<FloatType>(y) });
-			m_canvas.SetPointColor(x, y, distance < 0.0f ? sf::Color::White : sf::Color::Black);
-		}
-	}*/
-	
+		return;
+	}
+
+	const sf::Vector2u size = m_canvas.GetSize();	
 	const uint32_t threadCount = m_threadPool.ThreadCount();
 	const uint32_t sliceHeight = size.y / threadCount;
+
+	const float inverseFactor = 1.0f / m_directionSinFactor;
 
 	for (uint32_t k{ 0 }; k < threadCount; ++k) 
 	{
@@ -99,25 +127,92 @@ void Application::ComputeSceneSDF()
 			{
 				for (uint32_t y{ k * sliceHeight }; y < (k + 1) * sliceHeight; ++y) 
 				{
-					FloatType distance = m_sceneSDF->Evaluate({ static_cast<FloatType>(x), static_cast<FloatType>(y) });
-					m_canvas.SetPointColor(x, y, distance < 0.0f ? sf::Color::White : sf::Color::Black);
+					//const FloatType distance = m_sceneSDF->Evaluate({ static_cast<FloatType>(x), static_cast<FloatType>(y) });
+					//m_canvas.SetPointColor(x, y, distance < 0.0f ? sf::Color::White : sf::Color::Black);
+
+					const sf::Vector2<FloatType> direction = SDFUtils<FloatType>::ComputeGradient(m_sceneSDF.get(), { static_cast<FloatType>(x), static_cast<FloatType>(y) });
+					const sf::Vector2<FloatType> normalizedDirection = direction.lengthSquared() == 0 ? Math::Vector2Zero<FloatType> : direction.normalized();
+					sf::Color pointColor =
+					{
+						static_cast<uint8_t>(m_redChannel ? ((normalizedDirection.x / 2 + 0.5f) * 256u) : 0u),
+						static_cast<uint8_t>(m_greenChannel ? ((normalizedDirection.y / 2 + 0.5f) * 256u) : 0u),
+						static_cast<uint8_t>(m_blueChannel ? ((1.0f + std::cos(m_sceneSDF->Evaluate({ static_cast<FloatType>(x), static_cast<FloatType>(y) }) * inverseFactor)) * 128u) : 0u),
+						255u
+					};
+					m_canvas.SetPointColor(x, y, pointColor);
 				}
 			}
 		});
 	}
-	m_threadPool.WaitForCompletion();
+
+	m_sceneSDF->OnSDFReevaluated();
 }
 
-SDF_Ptr<FloatType> Application::CreateSceneSDF()
+SDF_UPtr<FloatType> Application::CreateSceneSDF()
 {
-	SDF_Ptr<FloatType> circle0 = std::make_unique<Circle<FloatType>>(sf::Vector2<FloatType>{200.0f, 100.0f}, 200.0f);
-	SDF_Ptr<FloatType> circle1 = std::make_unique<CoolS<FloatType>>(sf::Vector2<FloatType>{500.0f, 700.0f});
+	SDF_UPtr<FloatType> circle0 = std::make_unique<SDF_Circle<FloatType>>(sf::Vector2<FloatType>{200.0f, 100.0f}, 200.0f);
+	SDF_UPtr<FloatType> circle1 = std::make_unique<SDF_Circle<FloatType>>(sf::Vector2<FloatType>{400.0f, 500.0f}, 100.0f);
 
-	SDF_Ptr<FloatType> circleMin = std::make_unique<UnionOperator<FloatType>>(std::move(circle0), std::move(circle1));
+	//SDF_UPtr<FloatType> cools = std::make_unique<SDF_CoolS<FloatType>>(sf::Vector2<FloatType>{500.0f, 700.0f}, 100.0f);
 
-	SDF_Ptr<FloatType> box = std::make_unique<Box<FloatType>>(sf::Vector2<FloatType>{800.0f, 900.0f}, sf::Vector2<FloatType>{ 200.0f, 100.0f });
+	//SDF_UPtr<FloatType> circleMin = std::make_unique<SDF_UnionOperator<FloatType>>(std::move(circle0), std::move(cools));
+
+	//SDF_UPtr<FloatType> box = std::make_unique<SDF_Box<FloatType>>(sf::Vector2<FloatType>{800.0f, 900.0f}, sf::Vector2<FloatType>{ 200.0f, 100.0f });
 
 
-	SDF_Ptr<FloatType> scene = std::make_unique<SmoothUnionOperator<FloatType>>(std::move(circleMin), std::move(box), 0.5f);
+	SDF_UPtr<FloatType> scene = std::make_unique<SDF_SmoothUnionOperator<FloatType>>(std::move(circle0), std::move(circle1), 0.5f);
 	return scene;
+}
+
+void Application::ComputeSceneGF(bool forceReevaluation)
+{
+	if ((!m_sceneGF->RequireReevaluation() && !forceReevaluation) || !m_threadPool.IsDone())
+	{
+		return;
+	}
+
+	const sf::Vector2u size = m_canvas.GetSize();
+	const uint32_t threadCount = m_threadPool.ThreadCount();
+	const uint32_t sliceHeight = size.y / threadCount;
+
+	const float inverseFactor = 1.0f / m_directionSinFactor;
+
+	for (uint32_t k{ 0 }; k < threadCount; ++k)
+	{
+		m_threadPool.AddTask([=]
+			{
+				for (uint32_t x = 0u; x < size.x; ++x)
+				{
+					for (uint32_t y{ k * sliceHeight }; y < (k + 1) * sliceHeight; ++y)
+					{
+						const sf::Vector2<FloatType> direction = m_sceneGF->Evaluate({ static_cast<FloatType>(x), static_cast<FloatType>(y) });
+						const sf::Vector2<FloatType> normalizedDirection = direction.lengthSquared() == 0 ? Math::Vector2Zero<FloatType> : direction.normalized();
+						sf::Color pointColor = 
+						{ 
+							static_cast<uint8_t>(m_redChannel ? ((normalizedDirection.x / 2 + 0.5f) * 256u) : 0u),
+							static_cast<uint8_t>(m_greenChannel ? ((normalizedDirection.y / 2 + 0.5f) * 256u) : 0u),
+							static_cast<uint8_t>(m_blueChannel ? ((1.0f + std::cos(direction.length() * inverseFactor)) * 128u) : 0u),
+							255u 
+						};
+						m_canvas.SetPointColor(x, y, pointColor);
+					}
+				}
+			});
+	}
+	m_threadPool.WaitForCompletion();
+	m_sceneGF->OnGFReevaluated();
+}
+
+GF_UPtr<Configuration::FloatType> Application::CreateSceneGF()
+{
+	GF_UPtr<FloatType> circle0 = std::make_unique<GF_Circle<FloatType>>(sf::Vector2<FloatType>{200.0f, 100.0f}, 200.0f);
+	GF_UPtr<FloatType> cools = std::make_unique<GF_Circle<FloatType>>(sf::Vector2<FloatType>{500.0f, 700.0f}, 100.0f);
+
+	GF_UPtr<FloatType> circleMin = std::make_unique<GF_UnionOperator<FloatType>>(std::move(circle0), std::move(cools));
+
+	//GF_UPtr<FloatType> box = std::make_unique<GF_Box<FloatType>>(sf::Vector2<FloatType>{800.0f, 900.0f}, sf::Vector2<FloatType>{ 200.0f, 100.0f });
+
+
+	//GF_UPtr<FloatType> scene = std::make_unique<GF_SmoothUnionOperator<FloatType>>(std::move(circleMin), std::move(box), 0.5f);
+	return circleMin;
 }

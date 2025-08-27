@@ -5,11 +5,14 @@
 
 #include "Canvas.h"
 #include "SDFs/SDF.h"
+#include "GFs/GF.h"
 
 #include "Alias.h"
 
 #include "Utils/Profiler.h"
 #include "Utils/ThreadPool.h"
+
+#include "Physics/Verlet/VerletSolver.h"
 
 using namespace Alias;
 using namespace Configuration;
@@ -22,9 +25,12 @@ private:
     Canvas m_canvas;
     sf::RenderTexture m_renderTexture;
 
-    SDF_Ptr<Configuration::FloatType> m_sceneSDF;
+    SDF_UPtr<Configuration::FloatType> m_sceneSDF;
+    GF_UPtr<Configuration::FloatType> m_sceneGF;
 
     ThreadPool m_threadPool;
+
+    VerletSolver<Configuration::FloatType> m_physicsSolver;
 
 
     std::array<double, 60> m_deltaTimes;
@@ -33,14 +39,24 @@ private:
 
     Profiler& m_profiler;
 
+    float m_directionSinFactor;
+
+    bool m_redChannel = true;
+    bool m_greenChannel = true;
+    bool m_blueChannel = false;
+
 public:
     Application(sf::RenderWindow& window, Profiler& profiler);
 
     void Update(const sf::Time& deltaTime);
+    void FixedUpdate(float fixedDeltaTime);
     void Draw();
     void DrawImGui(const sf::Time& deltaTime);
 
 private:
-    void ComputeSceneSDF();
-    SDF_Ptr<Configuration::FloatType> CreateSceneSDF();
+    void ComputeSceneSDF(bool forceReevaluation = false);
+    SDF_UPtr<Configuration::FloatType> CreateSceneSDF();
+
+    void ComputeSceneGF(bool forceReevaluation = false);
+    GF_UPtr<Configuration::FloatType> CreateSceneGF();
 };
