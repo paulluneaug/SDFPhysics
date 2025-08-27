@@ -3,7 +3,7 @@
 
 namespace Configuration
 {
-	using FloatType = float;
+	using FloatType = double;
 
 	static constexpr uint32_t MAX_FRAMERATE = 144u;
 	static constexpr uint32_t FIXED_FRAMERATE = 60u;

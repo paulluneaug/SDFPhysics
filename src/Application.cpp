@@ -21,7 +21,7 @@ Application::Application(sf::RenderWindow& window, Profiler& profiler) :
 	m_physicsSolver(m_sceneSDF.get()),
 	m_directionSinFactor(200.0f)
 {
-	SDFUtils<FloatType>::EvalOffset = static_cast<FloatType>(0.01f);
+	//SDFUtils<FloatType>::EvalOffset = static_cast<FloatType>(0.01f);
 
     m_renderTexture.setSmooth(false);
 	ComputeSceneSDF();
@@ -94,7 +94,7 @@ void Application::DrawImGui(const sf::Time &deltaTime)
 		changed |= ImGui::Checkbox("Green", &m_greenChannel);
 		changed |= ImGui::Checkbox("Blue", &m_blueChannel);
 
-		changed |= ImGuiExtension::GenericDragFloat("Gradient evaluation offset", &SDFUtils<FloatType>::EvalOffset, 0.1f, 0.0f, 1.0f);
+		//changed |= ImGuiExtension::GenericDragFloat("Gradient evaluation offset", &SDFUtils<FloatType>::EvalOffset, 0.1f, 0.0f, 1.0f);
 
 		if (changed)
 		{
@@ -160,8 +160,8 @@ SDF_UPtr<FloatType> Application::CreateSceneSDF()
 	//SDF_UPtr<FloatType> box = std::make_unique<SDF_Box<FloatType>>(sf::Vector2<FloatType>{800.0f, 900.0f}, sf::Vector2<FloatType>{ 200.0f, 100.0f });
 
 
-	SDF_UPtr<FloatType> scene = std::make_unique<SDF_SmoothUnionOperator<FloatType>>(std::move(circle0), std::move(circle1), 0.5f);
-	return scene;
+	//SDF_UPtr<FloatType> scene = std::make_unique<SDF_SmoothUnionOperator<FloatType>>(std::move(circle0), std::move(circle1), 0.5f);
+	return circle0;
 }
 
 void Application::ComputeSceneGF(bool forceReevaluation)

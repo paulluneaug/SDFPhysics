@@ -8,9 +8,8 @@ using namespace Alias;
 template<typename TFloatType>
 class SDFUtils
 {
-public:
-	static TFloatType EvalOffset;
 private:
+	constexpr static TFloatType EVAL_OFFSET = static_cast<TFloatType>(0.005);
 	constexpr static TFloatType PI = static_cast<TFloatType>(3.1415926535);
 	constexpr static TFloatType TAU = 2 * PI;
 	constexpr static uint32_t ITERATIONS_COUNT = 20;
@@ -30,9 +29,9 @@ public:
 private:
 	static sf::Vector2<TFloatType> ComputeGradientDirection(SDF_RPtr<TFloatType> sdf, const sf::Vector2<TFloatType>& position)
 	{
-		constexpr TFloatType angle0 = static_cast<TFloatType>(0);
-		constexpr TFloatType angle1 = TAU / static_cast<TFloatType>(3);
-		constexpr TFloatType angle2 = 2 * TAU / static_cast<TFloatType>(3);
+		constexpr TFloatType angle0 = static_cast<TFloatType>(TAU / 6);
+		constexpr TFloatType angle1 = angle0 + TAU / static_cast<TFloatType>(3);
+		constexpr TFloatType angle2 = angle0 + 2 * TAU / static_cast<TFloatType>(3);
 
 		TFloatType value0 = sdf->Evaluate(GetGradientVector(angle0, position));
 		TFloatType value1 = sdf->Evaluate(GetGradientVector(angle1, position));
@@ -78,7 +77,7 @@ private:
 
 	constexpr static sf::Vector2<TFloatType> GetGradientVector(TFloatType angle, const sf::Vector2<TFloatType>& position)
 	{
-		return { position.x + std::cos(angle) * EvalOffset, position.y + std::sin(angle) * EvalOffset };
+		return { position.x + std::cos(angle) * EVAL_OFFSET, position.y + std::sin(angle) * EVAL_OFFSET };
 	}
 
 	static void DirectionBinarySearchStep(SDF_RPtr<TFloatType> sdf, const sf::Vector2<TFloatType>& position, TFloatType& minAngle, TFloatType& minValue, TFloatType& maxAngle, TFloatType& maxValue)
