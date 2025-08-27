@@ -31,6 +31,7 @@ FetchContent_MakeAvailable(ImGui-SFML)
 add_executable(${PROJECT_NAME} 
     src/main.cpp
     src/Configuration.h
+    src/Alias.h
     src/Events.h
     src/Events.cpp
     src/Application.h
@@ -42,21 +43,36 @@ add_executable(${PROJECT_NAME}
     src/Utils/Profiler.h
     src/Utils/Profiler.cpp
     src/Utils/ThreadPool.h
+    src/Utils/ImGuiUtils.h
 
     src/Canvas.h
     src/Canvas.cpp
     
     src/SDFs/SDF.h
     src/SDFs/AllSDFs.h
+    src/SDFs/SDFUtils.h
 
-    src/SDFs/Operators/UnionOperator.h
-    src/SDFs/Operators/SmoothUnionOperator.h
-    src/SDFs/Operators/IntersectionOperator.h
-
-    src/SDFs/Primitives/Circle.h
-    src/SDFs/Primitives/Box.h
-    src/SDFs/Primitives/CoolS.h
+    src/SDFs/Operators/SDF_UnionOperator.h
+    src/SDFs/Operators/SDF_SmoothUnionOperator.h
+    src/SDFs/Operators/SDF_IntersectionOperator.h
     
+    src/SDFs/Primitives/SDF_Primitive.h
+    src/SDFs/Primitives/SDF_Circle.h
+    src/SDFs/Primitives/SDF_Box.h
+    src/SDFs/Primitives/SDF_CoolS.h
+    
+    src/GFs/GF.h
+    src/GFs/AllGFs.h
+
+    src/GFs/Operators/GF_UnionOperator.h
+    src/GFs/Operators/GF_SmoothUnionOperator.h
+    src/GFs/Operators/GF_IntersectionOperator.h
+    
+    src/GFs/Primitives/GF_Primitive.h
+    src/GFs/Primitives/GF_Circle.h
+    src/GFs/Primitives/GF_Box.h
+    
+
     src/Physics/Verlet/VerletSolver.h
     src/Physics/Verlet/VerletObject.h
     )
