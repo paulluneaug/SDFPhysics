@@ -1,48 +1,55 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
+
+template<typename TFloatType>
 class VerletObject
 {
+public:
+	sf::Vector2<TFloatType> Position;
+	sf::Vector2<TFloatType> PreviousPosition;
+	float Radius;
 private:
-	sf::Vector2f m_position;
-	sf::Vector2f m_previousPosition;
-	sf::Vector2f m_acceleration;
+	sf::Vector2<TFloatType> m_acceleration;
 
-	float m_radius;
 
 public:
-	VerletObject(sf::Vector2f& startPosition, float radius) :
-		m_position(startPosition),
-		m_previousPosition(startPosition),
-		m_acceleration({0.0f, 0.0f}),
-		m_radius(radius)
+	VerletObject(sf::Vector2<TFloatType>& startPosition, float radius) :
+		Position(startPosition),
+		PreviousPosition(startPosition),
+		Radius(radius),
+		m_acceleration({0.0f, 0.0f})
 	{
 	}
 
-	void Update(float deltaTime) 
+	void Update(TFloatType deltaTime) 
 	{
+		const sf::Vector2<TFloatType> positionDelta = Position - PreviousPosition;
+		PreviousPosition = Position;
+		Position = Position + positionDelta + m_acceleration * (deltaTime * deltaTime);
 
+		m_acceleration = {};
 	}
 
-	void AddForce(sf::Vector2f& force) 
+	void AddForce(sf::Vector2<TFloatType>& force)
 	{
 		m_acceleration += force;
 	}
 
 
-	void SetVelocity(sf::Vector2f velocity, float deltaTime)
+	void SetVelocity(sf::Vector2<TFloatType> velocity, TFloatType deltaTime)
 	{
-		m_previousPosition = m_position - (velocity * deltaTime);
+		PreviousPosition = Position - (velocity * deltaTime);
 	}
 
-	void AddVelocity(sf::Vector2f velocity, float deltaTime)
+	void AddVelocity(sf::Vector2<TFloatType> velocity, TFloatType deltaTime)
 	{
-		m_previousPosition -= velocity * deltaTime;
+		PreviousPosition -= velocity * deltaTime;
 	}
 
-	sf::Vector2f GetVelocity(float deltaTime) const
+	sf::Vector2<TFloatType> GetVelocity(TFloatType deltaTime) const
 	{
-		return (m_position - m_previousPosition) / deltaTime;
+		return (Position - PreviousPosition) / deltaTime;
 	}
 };
 
