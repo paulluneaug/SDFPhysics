@@ -46,4 +46,28 @@ public:
 	{
 		return value >= static_cast<TVal>(0) ? 1 : -1;
 	}
+
+	template<typename TVal>
+	static constexpr TVal Min(const TVal val0, const TVal val1)
+	{
+		return val0 < val1 ? val0 : val1;
+	}
+
+	template<typename TVal>
+	static constexpr TVal Max(const TVal val0, const TVal val1)
+	{
+		return val0 > val1 ? val0 : val1;
+	}
+
+	template<typename TVal, typename TFactor>
+	static TVal Lerp(TVal a, TVal b, TFactor t)
+	{
+		return a + t * (b - a);
+	}
+
+	template<typename TVal>
+	static TVal InverseLerp(TVal input, TVal rangeMin, TVal rangeMax)
+	{
+		return (input - rangeMin) / (rangeMax - rangeMin);
+	}
 };
