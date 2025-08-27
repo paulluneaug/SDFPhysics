@@ -1,15 +1,16 @@
 #pragma once
-#include "Primitive.h"
+#include "SDF_Primitive.h"
+#include "../../Utils/ImGuiUtils.h"
 
 template<typename TFloatType>
-class Circle : public Primitive<TFloatType>
+class SDF_Circle : public PrimitiveSDF<TFloatType>
 {
-    typedef Primitive<TFloatType> Base;
+    typedef PrimitiveSDF<TFloatType> Base;
 private:
     TFloatType m_radius;
 
 public:
-    Circle(const sf::Vector2<TFloatType>& position, TFloatType radius) :
+    SDF_Circle(const sf::Vector2<TFloatType>& position, TFloatType radius) :
         Base(position),
         m_radius(radius)
     {
@@ -30,7 +31,7 @@ protected:
     virtual void DrawDebug_Impl(int& elementID) override
     {
         Base::DrawDebug_Impl(elementID);
-        if (ImGui::DragFloat("Radius", &m_radius, 1.0f, 0.0f)) 
+        if (ImGuiExtension::GenericDragFloat("Radius", &m_radius, 1.0f, 0.0f)) 
         {
             OnSDFChanged();
         }

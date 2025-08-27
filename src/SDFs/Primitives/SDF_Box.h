@@ -1,20 +1,21 @@
 #pragma once
-#include "Primitive.h"
+#include "SDF_Primitive.h"
 
 #include <algorithm>
 
 #include "../../Math.h"
+#include "../../Utils/ImGuiUtils.h"
 
 template<typename TFloatType>
-class Box : public Primitive<TFloatType>
+class SDF_Box : public PrimitiveSDF<TFloatType>
 {
-    typedef Primitive<TFloatType> Base;
+    typedef PrimitiveSDF<TFloatType> Base;
 
 private:
     sf::Vector2<TFloatType> m_size;
 
 public:
-    Box(const sf::Vector2<TFloatType>& position, sf::Vector2<TFloatType>& size) :
+    SDF_Box(const sf::Vector2<TFloatType>& position, sf::Vector2<TFloatType>& size) :
         Base(position),
         m_size(size)
     {
@@ -24,7 +25,7 @@ protected:
     virtual TFloatType Evaluate_Impl(const sf::Vector2<TFloatType>& position) const override
     {
         sf::Vector2<TFloatType> d = Math::Abs(position) - m_size;
-        return Math::Max(d, Math::Vector2Zero<TFloatType>).length() + std::min(std::max(d.x, d.y), 0.0f);
+        return Math::Max(d, Math::Vector2Zero<TFloatType>).length() + Math::Min(Math::Max(d.x, d.y), static_cast<TFloatType>(0));
     }
 
 
@@ -37,10 +38,8 @@ protected:
     {
         Base::DrawDebug_Impl(elementID);
 
-        TFloatType size[2] = { m_size.x, m_size.y };
-        if (ImGui::DragFloat2("Size", size))
+        if (ImGuiExtension::GenericDragFloat2("Size", &m_size))
         {
-            m_size = { size[0], size[1] };
             OnSDFChanged();
         }
     }

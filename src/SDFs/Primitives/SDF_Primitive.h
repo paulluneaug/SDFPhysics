@@ -1,15 +1,17 @@
 #pragma once
 #include "../SDF.h"
 
+#include "../../Utils/ImGuiUtils.h"
+
 template<typename TFloatType>
-class Primitive : public SDF<TFloatType>
+class PrimitiveSDF : public SDF<TFloatType>
 {
     typedef SDF<TFloatType> Base;
 private:
     sf::Vector2<TFloatType> m_position;
 
 public:
-    Primitive(const sf::Vector2<TFloatType>& position) :
+    PrimitiveSDF(const sf::Vector2<TFloatType>& position) :
         m_position(position)
     {
 
@@ -26,10 +28,8 @@ protected:
     {
         Base::DrawDebug_Impl(elementID);
 
-        TFloatType position[2] = { m_position.x, m_position.y };
-        if (ImGui::DragFloat2("Position", position))
+        if (ImGuiExtension::GenericDragFloat2("Position", &m_position))
         {
-            m_position = { position[0], position[1] };
             OnSDFChanged();
         }
     }

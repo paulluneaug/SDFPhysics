@@ -6,15 +6,15 @@
 using namespace Alias;
 
 template<typename TFloatType>
-class UnionOperator : public SDF<TFloatType>
+class SDF_IntersectionOperator : public SDF<TFloatType>
 {
     typedef SDF<TFloatType> Base;
 private:
-    SDF_Ptr<TFloatType> m_sdf0;
-    SDF_Ptr<TFloatType> m_sdf1;
+    SDF_UPtr<TFloatType> m_sdf0;
+    SDF_UPtr<TFloatType> m_sdf1;
 
 public:
-    UnionOperator(SDF_Ptr<TFloatType> sdf0, SDF_Ptr<TFloatType> sdf1) :
+    SDF_IntersectionOperator(SDF_UPtr<TFloatType> sdf0, SDF_UPtr<TFloatType> sdf1) :
         m_sdf0(std::move(sdf0)),
         m_sdf1(std::move(sdf1))
     {
@@ -23,7 +23,7 @@ public:
     virtual bool RequireReevaluation() const override
     {
         return Base::RequireReevaluation()
-            || m_sdf0->RequireReevaluation()
+            || m_sdf0->RequireReevaluation() 
             || m_sdf1->RequireReevaluation();
     }
 
@@ -34,15 +34,16 @@ public:
         m_sdf1->OnSDFReevaluated();
     }
 
+
 protected:
     TFloatType Evaluate_Impl(const sf::Vector2<TFloatType>& position) const override
     {
-        return std::min(m_sdf0->Evaluate(position), m_sdf1->Evaluate(position));
+        return std::max(m_sdf0->Evaluate(position), m_sdf1->Evaluate(position));
     }
 
     virtual bool DisplayTreeNode() const override
     {
-        return ImGui::TreeNode("Union");
+        return ImGui::TreeNode("Intersection");
     }
 
     virtual void DrawDebug_Impl(int& elementID) override
