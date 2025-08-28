@@ -71,7 +71,7 @@ private:
 			DirectionBinarySearchStep(sdf, position, minAngle, minValue, maxAngle, maxValue);
 		}
 
-		TFloatType resultAngle = ModTau((minAngle + maxAngle) / 2);
+		TFloatType resultAngle = GetMiddleAngle(minAngle, maxAngle);
 		return { std::cos(resultAngle), std::sin(resultAngle) };
 	}
 
@@ -82,7 +82,7 @@ private:
 
 	static void DirectionBinarySearchStep(SDF_RPtr<TFloatType> sdf, const sf::Vector2<TFloatType>& position, TFloatType& minAngle, TFloatType& minValue, TFloatType& maxAngle, TFloatType& maxValue)
 	{
-		TFloatType middleAngle = ModTau((minAngle + maxAngle) / 2);
+		TFloatType middleAngle = GetMiddleAngle(minAngle, maxAngle);
 		TFloatType middleValue = sdf->Evaluate(GetGradientVector(middleAngle, position));
 
 		if (minValue + middleValue < maxValue + middleValue)
@@ -100,5 +100,15 @@ private:
 	constexpr static TFloatType ModTau(TFloatType val)
 	{
 		return val < 0 ? val + TAU : val;
+	}
+
+	constexpr static TFloatType GetMiddleAngle(TFloatType angle0, TFloatType angle1)
+	{
+		TFloatType middleAngle = ModTau((angle0 + angle1) / 2);
+		if (std::abs(angle0 - angle1) > PI)
+		{
+			return middleAngle - PI;
+		}
+		return middleAngle;
 	}
 };
