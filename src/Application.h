@@ -39,11 +39,11 @@ private:
 
     Profiler& m_profiler;
 
-    float m_directionSinFactor;
+    float m_directionSinFactor = 3.0f;
 
     bool m_redChannel = true;
     bool m_greenChannel = true;
-    bool m_blueChannel = false;
+    bool m_blueChannel = true;
 
 public:
     Application(sf::RenderWindow& window, Profiler& profiler);

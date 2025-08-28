@@ -18,8 +18,7 @@ Application::Application(sf::RenderWindow& window, Profiler& profiler) :
 	m_sceneGF(std::move(CreateSceneGF())),
 	m_profiler(profiler),
 	m_threadPool(16u),
-	m_physicsSolver(m_sceneSDF.get()),
-	m_directionSinFactor(200.0f)
+	m_physicsSolver(m_sceneSDF.get())
 {
 	//SDFUtils<FloatType>::EvalOffset = static_cast<FloatType>(0.01f);
 
@@ -153,15 +152,16 @@ SDF_UPtr<FloatType> Application::CreateSceneSDF()
 	SDF_UPtr<FloatType> circle0 = std::make_unique<SDF_Circle<FloatType>>(sf::Vector2<FloatType>{200.0f, 100.0f}, 200.0f);
 	SDF_UPtr<FloatType> circle1 = std::make_unique<SDF_Circle<FloatType>>(sf::Vector2<FloatType>{400.0f, 500.0f}, 100.0f);
 
+	SDF_UPtr<FloatType> box = std::make_unique<SDF_Box<FloatType>>(sf::Vector2<FloatType>{800.0f, 900.0f}, sf::Vector2<FloatType>{ 200.0f, 100.0f });
+	SDF_UPtr<FloatType> circleMin = std::make_unique<SDF_UnionOperator<FloatType>>(std::move(circle0), std::move(box));
+	
 	//SDF_UPtr<FloatType> cools = std::make_unique<SDF_CoolS<FloatType>>(sf::Vector2<FloatType>{500.0f, 700.0f}, 100.0f);
 
-	//SDF_UPtr<FloatType> circleMin = std::make_unique<SDF_UnionOperator<FloatType>>(std::move(circle0), std::move(cools));
-
-	//SDF_UPtr<FloatType> box = std::make_unique<SDF_Box<FloatType>>(sf::Vector2<FloatType>{800.0f, 900.0f}, sf::Vector2<FloatType>{ 200.0f, 100.0f });
 
 
-	//SDF_UPtr<FloatType> scene = std::make_unique<SDF_SmoothUnionOperator<FloatType>>(std::move(circle0), std::move(circle1), 0.5f);
-	return circle0;
+
+	SDF_UPtr<FloatType> scene = std::make_unique<SDF_SmoothUnionOperator<FloatType>>(std::move(circleMin), std::move(circle1), 0.5f);
+	return scene;
 }
 
 void Application::ComputeSceneGF(bool forceReevaluation)
