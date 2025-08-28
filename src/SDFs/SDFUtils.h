@@ -33,9 +33,11 @@ private:
 		constexpr TFloatType angle1 = angle0 + TAU / static_cast<TFloatType>(3);
 		constexpr TFloatType angle2 = angle0 + 2 * TAU / static_cast<TFloatType>(3);
 
-		TFloatType value0 = sdf->Evaluate(GetGradientVector(angle0, position));
-		TFloatType value1 = sdf->Evaluate(GetGradientVector(angle1, position));
-		TFloatType value2 = sdf->Evaluate(GetGradientVector(angle2, position));
+		TFloatType sdfValueAtPosition = sdf->Evaluate(position);
+
+		TFloatType value0 = sdf->Evaluate(GetGradientVector(angle0, position, sdfValueAtPosition));
+		TFloatType value1 = sdf->Evaluate(GetGradientVector(angle1, position, sdfValueAtPosition));
+		TFloatType value2 = sdf->Evaluate(GetGradientVector(angle2, position, sdfValueAtPosition));
 
 		TFloatType sum01 = value0 + value1;
 		TFloatType sum02 = value0 + value2;
@@ -68,22 +70,23 @@ private:
 
 		for (uint32_t i = 0; i < ITERATIONS_COUNT; ++i)
 		{
-			DirectionBinarySearchStep(sdf, position, minAngle, minValue, maxAngle, maxValue);
+			DirectionBinarySearchStep(sdf, position, minAngle, minValue, maxAngle, maxValue, sdfValueAtPosition);
 		}
 
 		TFloatType resultAngle = GetMiddleAngle(minAngle, maxAngle);
 		return { std::cos(resultAngle), std::sin(resultAngle) };
 	}
 
-	constexpr static sf::Vector2<TFloatType> GetGradientVector(TFloatType angle, const sf::Vector2<TFloatType>& position)
+	constexpr static sf::Vector2<TFloatType> GetGradientVector(TFloatType angle, const sf::Vector2<TFloatType>& position, TFloatType valueAtPosition)
 	{
-		return { position.x + std::cos(angle) * EVAL_OFFSET, position.y + std::sin(angle) * EVAL_OFFSET };
+		TFloatType offset = Math::Max(EVAL_OFFSET, valueAtPosition / 20 * EVAL_OFFSET);
+		return { position.x + std::cos(angle) * offset, position.y + std::sin(angle) * offset };
 	}
 
-	static void DirectionBinarySearchStep(SDF_RPtr<TFloatType> sdf, const sf::Vector2<TFloatType>& position, TFloatType& minAngle, TFloatType& minValue, TFloatType& maxAngle, TFloatType& maxValue)
+	static void DirectionBinarySearchStep(SDF_RPtr<TFloatType> sdf, const sf::Vector2<TFloatType>& position, TFloatType& minAngle, TFloatType& minValue, TFloatType& maxAngle, TFloatType& maxValue, TFloatType sdfValueAtPosition)
 	{
 		TFloatType middleAngle = GetMiddleAngle(minAngle, maxAngle);
-		TFloatType middleValue = sdf->Evaluate(GetGradientVector(middleAngle, position));
+		TFloatType middleValue = sdf->Evaluate(GetGradientVector(middleAngle, position, sdfValueAtPosition));
 
 		if (minValue + middleValue < maxValue + middleValue)
 		{
