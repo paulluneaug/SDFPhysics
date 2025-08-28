@@ -43,7 +43,7 @@ add_executable(${PROJECT_NAME}
     src/Utils/Profiler.h
     src/Utils/Profiler.cpp
     src/Utils/ThreadPool.h
-    src/Utils/ImGuiUtils.h
+    src/Utils/ImGuiExtension.h
 
     src/Canvas.h
     src/Canvas.cpp

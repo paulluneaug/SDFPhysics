@@ -8,7 +8,7 @@
 
 #include "GFs/AllGFs.h"
 
-#include "Utils/ImGuiUtils.h"
+#include "Utils/ImGuiExtension.h"
 
 Application::Application(sf::RenderWindow& window, Profiler& profiler) :
 	m_window(window),

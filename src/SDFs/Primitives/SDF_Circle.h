@@ -1,6 +1,6 @@
 #pragma once
 #include "SDF_Primitive.h"
-#include "../../Utils/ImGuiUtils.h"
+#include "../../Utils/ImGuiExtension.h"
 
 template<typename TFloatType>
 class SDF_Circle : public PrimitiveSDF<TFloatType>

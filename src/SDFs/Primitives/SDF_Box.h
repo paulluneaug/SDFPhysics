@@ -4,7 +4,7 @@
 #include <algorithm>
 
 #include "../../Math.h"
-#include "../../Utils/ImGuiUtils.h"
+#include "../../Utils/ImGuiExtension.h"
 
 template<typename TFloatType>
 class SDF_Box : public PrimitiveSDF<TFloatType>

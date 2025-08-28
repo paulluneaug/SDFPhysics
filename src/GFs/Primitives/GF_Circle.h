@@ -1,7 +1,7 @@
 #pragma once
 #include "GF_Primitive.h"
 
-#include "../../Utils/ImGuiUtils.h"
+#include "../../Utils/ImGuiExtension.h"
 
 template<typename TFloatType>
 class GF_Circle : public GF_Primitive<TFloatType>

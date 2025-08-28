@@ -5,7 +5,7 @@
 
 #include "../../Math.h"
 
-#include "../../Utils/ImGuiUtils.h"
+#include "../../Utils/ImGuiExtension.h"
 
 template<typename TFloatType>
 class GF_Box : public GF_Primitive<TFloatType>

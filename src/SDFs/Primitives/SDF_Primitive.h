@@ -1,7 +1,7 @@
 #pragma once
 #include "../SDF.h"
 
-#include "../../Utils/ImGuiUtils.h"
+#include "../../Utils/ImGuiExtension.h"
 
 template<typename TFloatType>
 class PrimitiveSDF : public SDF<TFloatType>
