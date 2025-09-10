@@ -31,7 +31,7 @@ int main()
         accumulatedFixedTime += deltaTime.asSeconds();
 
         profiler.StartEvent("Event Processing");
-        Events::ProcessEvents(window);
+        Events::ProcessEvents(window, application);
         profiler.EndEvent();
 
         profiler.StartEvent("Application Update");

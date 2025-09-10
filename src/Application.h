@@ -14,11 +14,23 @@
 
 #include "Physics/Verlet/VerletSolver.h"
 
+#include "Triangle.h"
+
 using namespace Alias;
 using namespace Configuration;
 
 class Application
 {
+    enum class RenderOption
+    {
+        InOut,
+        Distance,
+        Gradient,
+    };
+
+public:
+    sf::Vector2i MousePosition;
+
 private:
     sf::RenderWindow& m_window;
 
@@ -27,6 +39,8 @@ private:
 
     SDF_UPtr<Configuration::FloatType> m_sceneSDF;
     GF_UPtr<Configuration::FloatType> m_sceneGF;
+
+    Triangle<Configuration::FloatType> m_triangle;
 
     ThreadPool m_threadPool;
 
@@ -41,6 +55,8 @@ private:
 
     float m_directionSinFactor = 3.0f;
 
+    RenderOption m_currentRenderOption;
+    RenderOption m_allRenderOptions[3] = {RenderOption::InOut, RenderOption::Distance,  RenderOption::Gradient };
     bool m_redChannel = true;
     bool m_greenChannel = true;
     bool m_blueChannel = true;
@@ -55,8 +71,11 @@ public:
 
 private:
     void ComputeSceneSDF(bool forceReevaluation = false);
+    sf::Color GetPointColorSDF(uint32_t x, uint32_t y);
     SDF_UPtr<Configuration::FloatType> CreateSceneSDF();
 
     void ComputeSceneGF(bool forceReevaluation = false);
     GF_UPtr<Configuration::FloatType> CreateSceneGF();
+
+    const char* ToString(RenderOption option);
 };

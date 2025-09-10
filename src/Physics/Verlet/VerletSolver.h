@@ -2,6 +2,7 @@
 #include "VerletObject.h"
 
 #include "../../SDFs/SDF.h"
+#include "../../SDFs//SDFUtils.h"
 
 template<typename TFloatType>
 class VerletSolver
@@ -97,8 +98,9 @@ private:
 			{
 				continue;
 			}
-
-			sf::Vector2<TFloatType> velocity = obj.Position - obj.PreviousPosition;
+			TFloatType penetration = obj.Radius - distance;
+			const sf::Vector2<TFloatType> normal = SDFUtils<TFloatType>::ComputeGradient(m_sceneSDF, obj.Position);
+			obj.Position += normal * (penetration);
 		}
 	}
 

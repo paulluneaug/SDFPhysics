@@ -7,7 +7,7 @@
 #include "../../Utils/ImGuiExtension.h"
 
 template<typename TFloatType>
-class SDF_CoolS : public PrimitiveSDF<TFloatType>
+class SDF_Arc : public PrimitiveSDF<TFloatType>
 {
     typedef PrimitiveSDF<TFloatType> Base;
 
@@ -15,7 +15,7 @@ private:
     TFloatType m_scale;
 
 public:
-    SDF_CoolS(const sf::Vector2<TFloatType>& position, TFloatType scale) :
+    SDF_Arc(const sf::Vector2<TFloatType>& position, TFloatType scale) :
         Base(position),
         m_scale(scale)
     {

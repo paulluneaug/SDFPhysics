@@ -40,6 +40,8 @@ add_executable(${PROJECT_NAME}
     src/Math.h
     src/Math.cpp
 
+    src/Triangle.h
+
     src/Utils/Profiler.h
     src/Utils/Profiler.cpp
     src/Utils/ThreadPool.h
@@ -57,9 +59,12 @@ add_executable(${PROJECT_NAME}
     src/SDFs/Operators/SDF_IntersectionOperator.h
     
     src/SDFs/Primitives/SDF_Primitive.h
+    src/SDFs/Primitives/SDF_Arc.h
     src/SDFs/Primitives/SDF_Circle.h
     src/SDFs/Primitives/SDF_Box.h
     src/SDFs/Primitives/SDF_CoolS.h
+    src/SDFs/Primitives/SDF_RegularStar.h
+    
     
     src/GFs/GF.h
     src/GFs/AllGFs.h
